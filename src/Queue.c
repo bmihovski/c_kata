@@ -1,99 +1,98 @@
 #include "Queue.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct Node {
-    int value;
-    struct Node *next;
+  int value;
+  struct Node *next;
 } Node;
 
 struct Queue {
-    Node *head;
-    Node *tail;
-    size_t length;
+  Node *head;
+  Node *tail;
+  size_t length;
 };
 
-Queue* queue_create(void) {
-    Queue *q = (Queue *)malloc(sizeof(Queue));
-    if (q == NULL) {
-        return NULL;
-    }
-    q->head = NULL;
-    q->tail = NULL;
-    q->length = 0;
-    return q;
+Queue *queue_create(void) {
+  Queue *queue = (Queue *)malloc(sizeof(Queue));
+  queue->head = NULL;
+  queue->tail = NULL;
+  queue->length = 0;
+  return queue;
 }
 
 void queue_destroy(Queue *q) {
-    if (q == NULL) {
-        return;
-    }
-    
-    Node *current = q->head;
-    while (current != NULL) {
-        Node *next = current->next;
-        free(current);
-        current = next;
-    }
-    free(q);
+  if (q == NULL) {
+    return;
+  }
+  auto *currNode = q->head;
+  while (currNode) {
+    auto *nextNode = currNode->next;
+    free(currNode);
+
+    currNode = nextNode;
+  }
+  q->head = NULL;
+  q->tail = NULL;
+  q->length = 0;
+  free(q);
 }
 
 void queue_enqueue(Queue *q, int value) {
-    if (q == NULL) {
-        return;
-    }
-    
-    Node *new_node = (Node *)malloc(sizeof(Node));
-    if (new_node == NULL) {
-        return;
-    }
-    
-    new_node->value = value;
-    new_node->next = NULL;
-    
-    if (q->tail == NULL) {
-        // Queue is empty
-        q->head = new_node;
-        q->tail = new_node;
-    } else {
-        // Add to the end
-        q->tail->next = new_node;
-        q->tail = new_node;
-    }
-    
+  if (NULL == q) {
+    return;
+  }
+  Node *newNode = (Node *)malloc(sizeof(Node));
+  newNode->value = value;
+  newNode->next = NULL;
+  if (0 == q->length) {
+    q->head = newNode;
+    q->tail = newNode;
     q->length++;
+  } else {
+    q->tail->next = newNode;
+    q->tail = newNode;
+    q->length++;
+  }
 }
 
 int queue_dequeue(Queue *q) {
-    if (q == NULL || q->head == NULL) {
-        return -1; // Return -1 for undefined (equivalent to TypeScript's undefined)
-    }
-    
-    Node *old_head = q->head;
-    int value = old_head->value;
-    
-    q->head = old_head->next;
-    if (q->head == NULL) {
-        q->tail = NULL; // Queue is now empty
-    }
-    
-    free(old_head);
+  if (NULL == q || NULL == q->tail || !queue_length(q)) {
+    return -1;
+  }
+  if (1 == q->length) {
+    int curr = q->head->value;
     q->length--;
-    
-    return value;
+    q->tail = NULL;
+    return curr;
+  }
+  auto *oldHead = q->head;
+  int curr = oldHead->value;
+  q->head = oldHead->next;
+  q->length--;
+  if (NULL == q->head) {
+    q->tail = NULL;
+  }
+  free(oldHead);
+  return curr;
 }
 
 int queue_peek(Queue *q) {
-    if (q == NULL || q->head == NULL) {
-        return -1; // Return -1 for undefined
-    }
-    
-    return q->head->value;
+  if (NULL == q || NULL == q->head) {
+    return -1;
+  }
+  return q->head->value;
 }
 
 size_t queue_length(Queue *q) {
-    if (q == NULL) {
-        return 0;
-    }
-    return q->length;
+  if (NULL == q) {
+    return 0;
+  }
+  return q->length;
+}
+int queue_is_empty(Queue *q) {
+  if (NULL == q || 0 == q->length) {
+    return 1;
+  }
+  return 0;
 }
